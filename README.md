@@ -1,4 +1,4 @@
-# [G]ilgamehs 
+# [G]ilgamesh 
 A [Fun project] Implementation Graph Neural Network for
 
 1. Node Classification
