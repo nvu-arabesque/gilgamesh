@@ -1,4 +1,4 @@
-# Implementation of Graph Neural Network
+# [Fun project] Implementation of Graph Neural Network
 
 GNN for
 
