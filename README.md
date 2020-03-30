@@ -1,6 +1,5 @@
-# [Fun project] Implementation of Graph Neural Network
-
-GNN for
+# [G]ilgamehs 
+A [Fun project] Implementation Graph Neural Network for
 
 1. Node Classification
 1. Recommender System: Edge prediction
