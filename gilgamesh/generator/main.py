@@ -3,6 +3,7 @@ import numpy as np
 import os
 import shutil
 import json
+import sys
 from connected_graph import generate_connected_graph
 
 def clear_directory():
@@ -14,33 +15,39 @@ def clear_directory():
         save_to_text = False
         print("Abort.........")
 
-def select_graph_type():
+
+
+def select_user_inputs():
     """Process user input to generate appropriate graphs accordingly"""
 
     invalid = True
-    inputs = []
-
+    inputs = sys.argv[1:]
+    sys_input_valid = True
     while (invalid):
-        print("Choose a connected graph type : \n (1) Line, (2) Cycle, (3) Complete, (4) Gnp")
-        print("Input format: <graph_type> <number_of_nodes> <probability?>")
         try:
-            inputs = raw_input(">> ").split()
-            if len(inputs) < 2:
+            if not sys_input_valid:
+                print("Choose a connected graph type : \n (1) Line, (2) Cycle, (3) Complete, (4) Gnp")
+                print("Input format: <training_size> <test_size> <graph_type> <number_of_nodes> <probability?>")
+                inputs = raw_input(">> ").split()
+            sys_input_valid = False
+            if len(inputs) < 4:
                 print("Wrong arguments")
                 continue
-            type = int(inputs[0])
-            size = int(inputs[1])
+            training_size = int(inputs[0])
+            test_size = int(inputs[1])
+            type = int(inputs[2])
+            graph_size = int(inputs[3])
             p = 0
             if type == 4:
-                if len(inputs) >= 3:
-                    p = float(inputs[2])
+                if len(inputs) >= 4:
+                    p = float(inputs[4])
                 else:
                     print("Invalid format")
                     continue
 
 
             correct_type = type > 0 and type < 5
-            positve_no_of_nodes = size > 0
+            positve_no_of_nodes = graph_size > 0 and training_size > 0 and test_size > 0
             correct_p = p >= 0 and p <= 1
             if correct_p and correct_type and positve_no_of_nodes:
                 invalid = False
@@ -48,8 +55,40 @@ def select_graph_type():
                 print("Invalid input format, please try again!")
         except ValueError:
             print("Positive integers only!")
-    return generate_connected_graph(type, size, p)
 
+    return training_size, test_size, type, graph_size, p
+
+
+
+def graph_generator():
+    """Take 4 or 5 parameters input of users and use it to generate graph"""
+    inputs = select_user_inputs()
+
+    train_dir = os.path.join(out_folder, "train")
+    os.mkdir(train_dir)
+    test_dir = os.path.join(out_folder, "test")
+    os.mkdir(test_dir)
+
+    for i in range(0, inputs[0]):
+        graph = generate_connected_graph(inputs[2], inputs[3], inputs[4])
+        train_data = {}
+        train_data["input"] = nx.to_numpy_matrix(graph, dtype=np.int64).tolist()
+        train_data["output"] = nx.is_connected(graph)
+        with open(os.path.join(train_dir, str(i) + ".json"), "w") as outfile:
+            outfile.write(json.dumps(train_data, outfile))
+
+
+    for i in range(0, inputs[1]):
+        graph = generate_connected_graph(inputs[2], inputs[3], inputs[4])
+        test_data = {}
+        test_data["input"] = nx.to_numpy_matrix(graph, dtype=np.int64).tolist()
+        test_data["output"] = nx.is_connected(graph)
+        with open(os.path.join(test_dir, str(i) + ".json"), "w") as outfile:
+            outfile.write(json.dumps(test_data, outfile))
+
+
+    print('Success, file written %s ' % out_folder)
+    return
 
 
 
@@ -74,10 +113,4 @@ os.makedirs(out_folder)
 # Writes graph to json file if possible
 
 if save_to_text:
-    data = {}
-    np_matrix = nx.to_numpy_matrix(select_graph_type(), dtype=np.int64)
-    data["input"] = np_matrix.tolist()
-    data["output"] = "True"
-    with open(output_path, "w") as outfile:
-     outfile.write(json.dumps(data, outfile))
-    print('Success, file written %s ' % outfile)
+    graph_generator()
