@@ -1,2 +1,6 @@
 tensorflow>=2.0.0
-python3
+dgl
+torch >= 1.4.0
+# Checkout the req in the following link
+# https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html
+torch-geometric
