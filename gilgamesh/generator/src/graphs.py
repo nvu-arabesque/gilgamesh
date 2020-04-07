@@ -15,7 +15,7 @@ class AbstractGraph(ABC):
         self._adj_matrix = None
 
     @abstractmethod
-    def is_graph_valid(graph):
+    def is_graph_valid(self):
         pass
 
     @abstractmethod
