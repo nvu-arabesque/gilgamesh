@@ -221,7 +221,7 @@ class GraphGenerator():
     def write_data(self, path):
         ts = time.gmtime()
         filename = time.strftime("%Y-%m-%d_%H:%M:%S", ts) + ".json"
-        outdir = os.path.join("../out/", path)
+        outdir = os.path.join("out/", path)
         outpath = os.path.join(outdir, filename)
         if not os.path.exists(outdir) or os.path.isfile(outdir):
             os.makedirs(outdir)
