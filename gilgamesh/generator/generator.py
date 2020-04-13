@@ -9,7 +9,8 @@ class GraphsError(Exception):
     pass
 
 class InputError(GraphsError):
-    """Exception raised when user makes input error
+    """
+    Exception raised when user makes input error
 
     """
 
