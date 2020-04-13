@@ -38,26 +38,34 @@ class Converter:
         Data: torch_geometric.data.Data
             Data of type torch_geometric
         """
+        # 
+        G.pygeom_prepare()
         # Get the appropriate feature
-        num_nodes, num_node_features, node_feature = G.get_node_feature()
+        num_nodes, num_node_features, node_feature = G.get_node_features()
         _, num_dim, node_pos = G.get_node_position()
         edge_list = G.get_edge_list()
         num_edge, num_edge_features, edge_attr = G.get_edge_attribute()
         label = G.get_label()
         # Some mid step
         # Convert edge list from list of edges (from, to) to list of from and list of to
-        _edge_list_from = [x[0] for x in edge_list]
-        _edge_list_to = [x[1] for x in edge_list]
-        _edge_tensor = [_edge_list_from, _edge_list_to]
-        # in case mem blows up
-        del _edge_list_from, _edge_list_to 
-        # Conversion from list to tensor
-        node_feature_tensor = torch.tensor(np.array(node_feature).reshape(
+        edge_list_tensor = torch.tensor(np.array(edge_list, dtype=np.int32),
+            dtype=torch.long).t().contiguous()
+        # Conversion other features to tensor
+        node_feature_tensor = None
+        if node_feature is not None and num_node_features > 0:
+            node_feature_tensor = torch.tensor(np.array(node_feature).reshape(
             num_nodes, num_node_features), dtype=torch.float)
-        edge_list_tensor = torch.tensor(np.array(_edge_tensor), dtype=torch.long)
-        edge_attribute_tensor = torch.tensor(np.array(edge_attr).reshape(
+        
+        edge_attribute_tensor = None
+        if edge_attr is not None and num_edge_features > 0:
+            edge_attribute_tensor = torch.tensor(np.array(edge_attr).reshape(
             num_edge, num_edge_features))
-        node_pos_tensor = torch.tensor(np.array(node_pos).reshape(num_nodes, num_dim))
+
+        node_pos_tensor = None
+        if node_pos is not None and num_dim > 0:
+            node_pos_tensor = torch.tensor(np.array(node_pos).reshape(
+                num_nodes, num_dim))
+
         # Create Data object
         return Data(x=node_feature_tensor, edge_index = edge_list_tensor,
             edge_attr = edge_attribute_tensor, y=label, pos=node_pos_tensor)

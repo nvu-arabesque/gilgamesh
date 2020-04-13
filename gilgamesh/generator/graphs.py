@@ -6,6 +6,7 @@ import os, sys, math, random, matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
+import json
 from abc import ABC, abstractmethod
 
 class AbstractGraph(ABC):
@@ -48,12 +49,14 @@ class AbstractGraph(ABC):
         else:
             nx.draw(self._graph)
 
-    def breakdown(self):
+    def pygeom_prepare(self, delimiter=','):
         """ """
         E = list(nx.generate_edgelist(self._graph,
-            delimiter=','))
-        self._edge_list = [x.split(',')[:-1] for x in E]
-        self._edge_features = [x.split(',')[-1] for x in E]
+            delimiter=delimiter))
+        self._edge_list = [x.split(delimiter)[:-1] for x in E]
+        # to extract features needs a bit of work
+        self._edge_features = [json.loads(x.split(delimiter)[-1].replace("'", '"'))\
+            for x in E]
 
     def get_node_features(self):
         """
