@@ -16,8 +16,13 @@ class AbstractGraph(ABC):
         self._adj_matrix = None
         self._size = None
 
+        self._node_features = None
+        self._node_positions = None
+        self._edge_list = None
+        self._edge_features = None
+
     @abstractmethod
-    def is_graph_valid(G):
+    def is_graph_valid(self):
         pass
 
     @abstractmethod
@@ -42,6 +47,29 @@ class AbstractGraph(ABC):
         else:
             nx.draw(self._graph)
 
+    def breakdown(self):
+        """ """
+        E = list(nx.generate_edgelist(self._graph,
+            delimiter=','))
+        self._edge_list = [x.split(',')[:-1] for x in E]
+        self._edge_features = [x.split(',')[-1] for x in E]
+
+    def get_node_features(self):
+        """ """
+        return self._node_features
+
+    def get_edge_list(self):
+        """ """
+        return self._edge_list
+
+    def get_edge_attribute(self):
+        """ """
+        return self._edge_features
+
+    def get_node_position(self):
+        """ """
+        return self._node_positions
+
 class CompleteGraph(AbstractGraph):
 
     def __init__(self):
@@ -51,7 +79,8 @@ class CompleteGraph(AbstractGraph):
         self._size = size
         self._graph = nx.complete_graph(size)
         self._adj_matrix = nx.to_numpy_matrix(self._graph, dtype=np.int64)
-
+        
+        self._node_features = [] * self._size
 
     @staticmethod
     def is_graph_valid(G):
