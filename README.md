@@ -8,3 +8,4 @@ A [Fun project] Implementation Graph Neural Network for
 ## Graph Generator
 Generate graph with certain properties
 
+# Test
