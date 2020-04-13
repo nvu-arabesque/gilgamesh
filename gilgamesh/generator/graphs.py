@@ -82,7 +82,6 @@ class LineGraph(AbstractGraph):
             visited.append(node)
         return len(visited) == nx.Graph.number_of_nodes(G)
 
-
 class CycleGraph(AbstractGraph):
     def __init__(self):
         AbstractGraph.__init__(self)
