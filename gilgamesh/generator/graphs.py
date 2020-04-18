@@ -9,6 +9,7 @@ import networkx as nx
 import json
 from abc import ABC, abstractmethod
 
+
 class AbstractGraph(ABC):
     """ Skeleton for problems """
 
@@ -16,6 +17,7 @@ class AbstractGraph(ABC):
         self._graph = None
         self._adj_matrix = None
         self._size = None
+        self._type = 'undirected'
 
         self._node_features = None
         self._node_positions = None
@@ -32,22 +34,54 @@ class AbstractGraph(ABC):
         pass
 
     def get_graph(self):
+        """
+        Returns
+        --------------
+
+        networkx graph
+        """
         if self._graph is None:
             print("Graph has not been populated")
             return None
         return self._graph
 
     def get_adj_matrix(self):
+        """
+        Returns:
+        --------------
+        numpy 2d array: matrix representation of graph
+
+        """
         if self._adj_matrix is None:
             print("Graph has not been populated")
             return None
         return self._adj_matrix
 
     def draw(self):
+        """
+
+        To visualise instantly:
+
+        import matplotlib.pyplot
+
+        pyplot.show()
+
+        """
         if self._graph is None:
             print("Graph has not been populated")
         else:
             nx.draw(self._graph)
+
+
+    def get_full_edge_list(self):
+        E = None
+        rev_E = None
+        if self._type == 'undirected':
+            E = list(nx.generate_edgelist(self._graph, delimiter=','))
+            rev_E = [",".join([x[1], x[0], x[2]]) for x in [n.split(',') for n in E]]
+        return E + rev_E
+
+
 
     def pygeom_prepare(self, delimiter=','):
         """ """
@@ -60,11 +94,11 @@ class AbstractGraph(ABC):
 
     def get_node_features(self):
         """
-        
+
         Returns
         ----------
         tuple: (int, int, list)
-            num_nodes, num_node_features, node_feature    
+            num_nodes, num_node_features, node_feature
         """
         num_nodes = self._size
         num_node_features = 0 if self._node_features is None else len(self._node_features[0])
@@ -93,7 +127,9 @@ class AbstractGraph(ABC):
         ----------
         tuple: (int, int, list)
             num_nodes, num_dim, node_pos
+
         """
+
         num_nodes = self._size
         num_dim = 0 if self._node_positions is None else len(self._node_positions[0])
         node_pos = self._node_positions
@@ -108,6 +144,14 @@ class AbstractGraph(ABC):
         """
         return self._label
 
+    def set_label(self, label):
+        """
+
+
+        """
+        self._label = label
+            
+
 class CompleteGraph(AbstractGraph):
 
     def __init__(self, size):
@@ -118,7 +162,7 @@ class CompleteGraph(AbstractGraph):
         self._size = size
         self._graph = nx.complete_graph(size)
         self._adj_matrix = nx.to_numpy_matrix(self._graph, dtype=np.int64)
-        
+
     @staticmethod
     def is_graph_valid(G):
         n = G.number_of_nodes()
