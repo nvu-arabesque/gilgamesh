@@ -1,6 +1,7 @@
-tensorflow>=2.0.0
-dgl
+tensorflow==2.0.0b0
 torch >= 1.4.0
+numpy
+networkx
 # Checkout the req in the following link
 # https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html
 torch-geometric

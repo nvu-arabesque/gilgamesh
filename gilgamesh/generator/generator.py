@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from graphs import *
 from enum import Enum
+from converter import *
 
 class GraphsError(Exception):
     pass
 
 class InputError(GraphsError):
-    """Exception raised when user makes input error
+    """
+    Exception raised when user makes input error
 
     """
 
@@ -82,6 +84,7 @@ class Dataset():
         self.check_inputs(types, max_graph_sizes, sparsities)
         if not (isinstance(train_size, int)  and isinstance(test_size, int)):
             raise InputError([train_size, test_size], "Sizes must be integers")
+
         if not (train_size >= 0 and test_size >= 0):
             raise InputError([train_size, test_size], "Sizes must be positive")
 
@@ -170,19 +173,15 @@ class GraphGenerator():
         test_set = []
         for G in dataset.get_dataset_as_graphs()["train"]:
             nxG = G.get_graph()
-            validity = all(GraphTypes[GType].value().is_graph_valid(nxG) for GType in self.properties)
-            temp = {}
-            temp["input"] = G.get_adj_matrix().tolist()
-            temp["output"] = validity
-            train_set.append(temp)
+            valid = all(GraphTypes[GType].value().is_graph_valid(nxG) for GType in self.properties)
+            G.set_label(valid)
+            train_set.append(G)
 
         for G in dataset.get_dataset_as_graphs()["test"]:
             nxG = G.get_graph()
-            validity = all(GraphTypes[GType].value().is_graph_valid(nxG) for GType in self.properties)
-            temp = {}
-            temp["input"] = G.get_adj_matrix().tolist()
-            temp["output"] = validity
-            test_set.append(temp)
+            valid = all(GraphTypes[GType].value().is_graph_valid(nxG) for GType in self.properties)
+            G.set_label(valid)
+            test_set.append(G)
 
         data = {}
         data["train"] = train_set
