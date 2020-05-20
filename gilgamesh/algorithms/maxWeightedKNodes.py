@@ -122,10 +122,14 @@ def sortedEdges(k, G):
     return min(allSubGraphsWithSum, key = lambda x: x[1])
 
 def findMaxWeightedKNodes(k, completeGraph):
+    bruteStartTime = datetime.now()
     brute = bruteForce(k, completeGraph)[0]
+    bruteElapsedTime = (datetime.now() - bruteStartTime).total_seconds()
+    sortStartTime = datetime.now()
     sorted = sortedEdges(k, completeGraph)
-    print("BruteForce result: \n\t Nodes: %s \n\t Sum: %s" % (brute['Nodes'], brute['Sum']))
-    print("SortedEdge result: \n\t Nodes: %s \n\t Sum: %s" % (sorted[0], sorted[1]))
+    sortedElapsedTime = (datetime.now() - sortStartTime).total_seconds()
+    print("BruteForce result: \n\t Nodes: %s \n\t Sum: %s\n\t Elapsed time: %ld" % (brute['Nodes'], brute['Sum'], bruteElaspedTime))
+    print("SortedEdge result: \n\t Nodes: %s \n\t Sum: %s\n\t Elapsed time: %ld" % (sorted[0], sorted[1], sortedElapsedTime))
 
 def generateGraphWithAnswer(size, k):
     assert k <= size
@@ -134,10 +138,9 @@ def generateGraphWithAnswer(size, k):
 
 
 def main():
-    size = 10
-    k = 4
-    startTime = datetime.now()
+    size = 50
+    k = 20
+    print("Graph size: %d, K-size: %d \n\n *************************************" % (size, k))
     generateGraphWithAnswer(size, k)
-    print("Finished executing in: %s" % (datetime.now() - startTime).total_seconds())
 
 main()
