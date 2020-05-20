@@ -1,8 +1,8 @@
-import os, sys, random, math, itertools
+import os, sys, random, math, itertools, heapq
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-import timeit
+from datetime import datetime
 from functools import reduce
 sys.path.append('../..')
 
@@ -10,7 +10,55 @@ import gilgamesh
 from gilgamesh.generator.graphs import CompleteGraph
 
 
-seed = 10
+
+# CREDITS TO @LetterRip
+def find_all_cycles(G):
+    graph = [[edge[0], edge[1]] for edge in G.to_directed().edges]
+    cycles = []
+    def findNewCycles(path):
+        start_node = path[0]
+        next_node= None
+        sub = []
+
+        #visit each edge and each node of each edge
+        for edge in graph:
+            node1, node2 = edge
+            if start_node in edge:
+                if node1 == start_node:
+                    next_node = node2
+                else:
+                    next_node = node1
+                    if not visited(next_node, path):
+                        # neighbor node not on path yet
+                        sub = [next_node]
+                        sub.extend(path)
+                        # explore extended path
+                        findNewCycles(sub);
+                    elif len(path) > 2  and next_node == path[-1]:
+                        # cycle found
+                        p = rotate_to_smallest(path);
+                        inv = invert(p)
+                        if isNew(p) and isNew(inv):
+                            cycles.append(p)
+
+    def invert(path):
+        return rotate_to_smallest(path[::-1])
+
+    #  rotate cycle path such that it begins with the smallest node
+    def rotate_to_smallest(path):
+        n = path.index(min(path))
+        return path[n:]+path[:n]
+
+    def isNew(path):
+        return not path in cycles
+
+    def visited(node, path):
+        return node in path
+
+    for edge in graph:
+        for node in edge:
+            findNewCycles([node])
+    return cycles
 
 def makeGraph(size):
     G = CompleteGraph(size).get_graph()
@@ -19,8 +67,6 @@ def makeGraph(size):
                         for edge in G.edges
                     }
     nx.set_edge_attributes(G, weightedEdges)
-    print(weightedEdges)
-    drawGraph(G)
     return G
 
 def drawGraph(G):
@@ -38,28 +84,60 @@ def drawGraph(G):
 
 def bruteForce(k, G):
     """
-        Args: 
+        Args:
             k - size of components
             G - networkX graph
 
     """
 
     kGroups = list(itertools.combinations(list(G.nodes), k))
+    groupsWithSumOfEdges = []
     for kGroup in kGroups:
-        subgraphG = G.subgraph(kGroup)
-    groupsWithSumOfEdges = [
-                            dict({
-                                "Nodes" : kGroup,
-                                "Sum" : G.subgraph(kGroup).size("weight") 
-                            }) for kGroup in kGroups ]    
-    maxGroup = reduce((lambda x, y: x if x["Sum"] > y["Sum"] else y), groupsWithSumOfEdges)
+        nodeSum = {}
+        nodeSum["Nodes"] = kGroup
+        nodeSum["Sum"] = (G.subgraph(kGroup)).size("weight")
+        groupsWithSumOfEdges.append(nodeSum)
+
+    maxGroup = reduce((lambda x, y: x if x["Sum"] < y["Sum"] else y), groupsWithSumOfEdges)
     return (maxGroup, groupsWithSumOfEdges)
 
+def sortedEdges(k, G):
+    finished = False
+    subGraph = nx.Graph()
+    edgeQueue = []
+    for edge in G.edges.data("weight"):
+        heapq.heappush(edgeQueue, (edge[2], edge[0], edge[1]))
+    cycles = []
+    while(not finished and len(edgeQueue) != 0):
+        next_edge = heapq.heappop(edgeQueue)
+        subGraph.add_edge(next_edge[2], next_edge[1], weight=next_edge[0])
+        try:
+            cycles = find_all_cycles(subGraph)
+        except nx.exception.NetworkXNoCycle:
+            cycles = []
+        filter(lambda x: len(x) == k, cycles)
+        finished = len(cycles) > 0
+    allSubGraphs = [G.subgraph(cycle) for cycle in cycles]
+    allSubGraphsWithSum = [(graph.nodes, graph.size("weight")) for graph in allSubGraphs]
+    return min(allSubGraphsWithSum, key = lambda x: x[1])
+
 def findMaxWeightedKNodes(k, completeGraph):
-    print(bruteForce(k, completeGraph)[0])
+    brute = bruteForce(k, completeGraph)[0]
+    sorted = sortedEdges(k, completeGraph)
+    print("BruteForce result: \n\t Nodes: %s \n\t Sum: %s" % (brute['Nodes'], brute['Sum']))
+    print("SortedEdge result: \n\t Nodes: %s \n\t Sum: %s" % (sorted[0], sorted[1]))
 
 def generateGraphWithAnswer(size, k):
     assert k <= size
     findMaxWeightedKNodes(k, makeGraph(size))
 
-generateGraphWithAnswer(10, 4)
+
+
+def main():
+    size = 10
+    k = 4
+    startTime = datetime.now()
+    generateGraphWithAnswer(size, k)
+    print("Finished executing in: %s" % (datetime.now() - startTime).total_seconds())
+
+main()
