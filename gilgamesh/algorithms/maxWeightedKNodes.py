@@ -3,7 +3,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import timeit
-
+from functools import reduce
 sys.path.append('../..')
 
 import gilgamesh
@@ -19,6 +19,7 @@ def makeGraph(size):
                         for edge in G.edges
                     }
     nx.set_edge_attributes(G, weightedEdges)
+    print(weightedEdges)
     drawGraph(G)
     return G
 
@@ -49,12 +50,13 @@ def bruteForce(k, G):
     groupsWithSumOfEdges = [
                             dict({
                                 "Nodes" : kGroup,
-                                "Sum" : G.subgraph(kGroup).size() 
+                                "Sum" : G.subgraph(kGroup).size("weight") 
                             }) for kGroup in kGroups ]    
-    return groupsWithSumOfEdges
+    maxGroup = reduce((lambda x, y: x if x["Sum"] > y["Sum"] else y), groupsWithSumOfEdges)
+    return (maxGroup, groupsWithSumOfEdges)
 
 def findMaxWeightedKNodes(k, completeGraph):
-    bruteForce(k, completeGraph)
+    print(bruteForce(k, completeGraph)[0])
 
 def generateGraphWithAnswer(size, k):
     assert k <= size
