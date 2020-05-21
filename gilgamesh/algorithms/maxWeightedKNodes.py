@@ -111,25 +111,23 @@ def sortedEdges(k, G):
     while(not finished and len(edgeQueue) != 0):
         next_edge = heapq.heappop(edgeQueue)
         subGraph.add_edge(next_edge[2], next_edge[1], weight=next_edge[0])
-        try:
-            cycles = find_all_cycles(subGraph)
-        except nx.exception.NetworkXNoCycle:
-            cycles = []
-        filter(lambda x: len(x) == k, cycles)
+        allCycles = find_all_cycles(subGraph)
+        cycles = [x for x in allCycles if len(x) == k]
         finished = len(cycles) > 0
     allSubGraphs = [G.subgraph(cycle) for cycle in cycles]
     allSubGraphsWithSum = [(graph.nodes, graph.size("weight")) for graph in allSubGraphs]
+    
     return min(allSubGraphsWithSum, key = lambda x: x[1])
 
 def findMaxWeightedKNodes(k, completeGraph):
-    bruteStartTime = datetime.now()
-    brute = bruteForce(k, completeGraph)[0]
-    bruteElapsedTime = (datetime.now() - bruteStartTime).total_seconds()
+    # bruteStartTime = datetime.now()
+    # brute = bruteForce(k, completeGraph)[0]
+    # bruteElapsedTime = (datetime.now() - bruteStartTime).total_seconds()
+    # print("BruteForce result: \n\t Nodes: %s \n\t Sum: %s\n\t Elapsed time: %s" % (brute['Nodes'], brute['Sum'], bruteElapsedTime))
     sortStartTime = datetime.now()
     sorted = sortedEdges(k, completeGraph)
     sortedElapsedTime = (datetime.now() - sortStartTime).total_seconds()
-    print("BruteForce result: \n\t Nodes: %s \n\t Sum: %s\n\t Elapsed time: %ld" % (brute['Nodes'], brute['Sum'], bruteElaspedTime))
-    print("SortedEdge result: \n\t Nodes: %s \n\t Sum: %s\n\t Elapsed time: %ld" % (sorted[0], sorted[1], sortedElapsedTime))
+    print("SortedEdge result: \n\t Nodes: %s \n\t Sum: %s\n\t Elapsed time: %s" % (sorted[0], sorted[1], sortedElapsedTime))
 
 def generateGraphWithAnswer(size, k):
     assert k <= size
@@ -138,8 +136,8 @@ def generateGraphWithAnswer(size, k):
 
 
 def main():
-    size = 50
-    k = 20
+    size = 100
+    k = 80
     print("Graph size: %d, K-size: %d \n\n *************************************" % (size, k))
     generateGraphWithAnswer(size, k)
 
