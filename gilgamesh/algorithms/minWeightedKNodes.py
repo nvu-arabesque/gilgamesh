@@ -98,8 +98,8 @@ def bruteForce(k, G):
         nodeSum["Sum"] = (G.subgraph(kGroup)).size("weight")
         groupsWithSumOfEdges.append(nodeSum)
 
-    maxGroup = reduce((lambda x, y: x if x["Sum"] < y["Sum"] else y), groupsWithSumOfEdges)
-    return (maxGroup, groupsWithSumOfEdges)
+    minGroup = min(groupsWithSumOfEdges, key = lambda x: x["Sum"]) 
+    return (minGroup, groupsWithSumOfEdges)
 
 def sortedEdges(k, G):
     finished = False
@@ -119,7 +119,7 @@ def sortedEdges(k, G):
     
     return min(allSubGraphsWithSum, key = lambda x: x[1])
 
-def findMaxWeightedKNodes(k, completeGraph):
+def findMinWeightedKNodes(k, completeGraph):
     # bruteStartTime = datetime.now()
     # brute = bruteForce(k, completeGraph)[0]
     # bruteElapsedTime = (datetime.now() - bruteStartTime).total_seconds()
@@ -131,13 +131,13 @@ def findMaxWeightedKNodes(k, completeGraph):
 
 def generateGraphWithAnswer(size, k):
     assert k <= size
-    findMaxWeightedKNodes(k, makeGraph(size))
+    findMinWeightedKNodes(k, makeGraph(size))
 
 
 
 def main():
     size = 100
-    k = 80
+    k = 30
     print("Graph size: %d, K-size: %d \n\n *************************************" % (size, k))
     generateGraphWithAnswer(size, k)
 
