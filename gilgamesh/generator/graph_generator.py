@@ -10,7 +10,6 @@ import os, sys, glob, matplotlib, random, math, time, json
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from typing import Int
 from enum import Enum
 
 class OutputType(Enum):
@@ -20,7 +19,7 @@ class OutputType(Enum):
 
 class UndirectedGraphGenerator:
     @staticmethod
-    def generate_path(n: Int):
+    def generate_path(n: int):
         """ Generate a path of order n.
         """
         indices = list(range(n))
@@ -30,18 +29,18 @@ class UndirectedGraphGenerator:
         return nx.to_numpy_matrix(G, dtype=np.int64)
 
     @staticmethod
-    def generate_cycle(n: Int):
+    def generate_cycle(n: int):
         """ Generate a cycle of order n.
         """
         return nx.to_numpy_matrix(nx.cycle_graph(n), dtype=np.int64)
 
     @staticmethod
-    def generate_complete(n: Int):
+    def generate_complete(n: int):
         """ Generate K_n """
         return nx.to_numpy_matrix(nx.complete_graph(n), dtype=np.int64)
 
     @staticmethod
-    def generate_complete_bipartite(n: Int, m: Int):
+    def generate_complete_bipartite(n: int, m: int):
         """ Generate complete bipartite graph.
 
             Args
@@ -54,7 +53,7 @@ class UndirectedGraphGenerator:
         return nx.to_numpy_matrix(nx.complete_bipartite_graph(n, m), dtype=np.int64)
 
     @staticmethod
-    def generate_barbell(n: Int, m: Int):
+    def generate_barbell(n: int, m: int):
         """ Generate barbell graph.
 
             Args
@@ -67,14 +66,24 @@ class UndirectedGraphGenerator:
         return nx.to_numpy_matrix(nx.barbell(n, m), dtype=np.int64)
 
     @staticmethod
-    def generate_perfect_balanced_tree(t: Int, h: Int):
+    def generate_perfect_balanced_tree(t: int, h: int):
         """ Generate a perfectly balanced t-nary tree of size h.    
         """
         return nx.to_numpy_matrix(nx.balanced_tree(t, h), dtype=np.int64)
 
     @staticmethod
-    def generate_k_circulant_graph(n: Int, k: Int):
+    def generate_k_circulant(n: int, k: int):
         """ Generate a k circulant graph of order n.
         """
         return nx.to_numpy_matrix(
             nx.generators.classic.circulant_graph(n, list(range(1,k+1))), dtype=np.int64)
+
+    @staticmethod
+    def generate_random_regular(n: int, d: int):
+        """ Generate random regular graph of degree d. Using Kim & Vu method.
+            Note that n * d must be even.
+        """
+        return nx.to_numpy_matrix(
+            nx.generators.random_graphs.random_regular_graph(n, d),
+        )
+        
