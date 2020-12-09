@@ -105,19 +105,9 @@ class AbstractGraph(ABC):
         """
         return self._label
 
-class CompleteGraph(AbstractGraph):
-
-    def __init__(self, size):
-        super().__init__(self)
-        self.populate_graph(size)
-
-    def populate_graph(self, size):
-        self._size = size
-        self._graph = nx.complete_graph(size)
-        self._adj_matrix = nx.to_numpy_matrix(self._graph, dtype=np.int64)
-        
+class CompleteGraph(AbstractGraph):        
     @staticmethod
-    def is_graph_valid(G):
+    def is_complete(G):
         n = G.number_of_nodes()
         for node in G.nodes():
             if len(G[node]) < (n - 1):
@@ -125,20 +115,8 @@ class CompleteGraph(AbstractGraph):
         return True
 
 class LineGraph(AbstractGraph):
-    def __init__(self, size):
-        super().__init__(self)
-        self.populate_graph(size)
-
-    def populate_graph(self, size):
-        self._size = size
-        indices = list(range(self._size))
-        self._graph = nx.Graph()
-        for i in range(self._size - 1):
-            self._graph.add_edge(indices[i], indices[i+1])
-        self._adj_matrix = nx.to_numpy_matrix(self._graph, dtype=np.int64)
-
     @staticmethod
-    def is_graph_valid(G):
+    def is_line(G):
         visited = []
         for node in nx.Graph.nodes(G):
             if node in visited:
@@ -148,16 +126,6 @@ class LineGraph(AbstractGraph):
 
 
 class CycleGraph(AbstractGraph):
-    def __init__(self, size):
-        super().__init__(self)
-        self.populate_graph(size)
-
-    def populate_graph(self, size):
-        self._size = size
-        self._graph = nx.cycle_graph(self._size)
-        self._adj_matrix = nx.to_numpy_matrix(self._graph, dtype=np.int64)
-
-
     @staticmethod
-    def is_graph_valid(G):
+    def is_cycle(G):
         return nx.is_directed_acyclic_graph(G.to_directed())
