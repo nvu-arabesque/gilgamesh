@@ -245,3 +245,32 @@ def GeneratorTest():
 
 # DatasetTest()
 GeneratorTest()
+
+class Dataset:
+    def __init__(self, n, r, types):
+        """
+            n: number of graphs
+            r: ratio
+            size: [x, y]
+            types: ['cycle', 'tree', etc.]
+        """
+
+    def generate_balanced():
+        """ Go through from range(n), roll two dice pick for type and size,
+        generate 
+        """
+
+
+class IsConnectedDataset:
+
+class IsCompleteDataset:
+
+class IsRegularDataset:
+
+class IsTreeDataset:
+
+class IsPlanarDataset:
+
+class IsBipartiteDataset:
+
+class IsPartiteDataset:
