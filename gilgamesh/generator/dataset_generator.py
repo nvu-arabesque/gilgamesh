@@ -2,8 +2,11 @@ import os, sys, glob, matplotlib, random, math, time, json
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from graphs import *
+
+from generator.graph_generator import GraphGenerator
 from enum import Enum
+
+import logging
 
 class GraphsError(Exception):
     pass
@@ -256,12 +259,60 @@ class Dataset:
         """
 
     def generate_balanced():
-        """ Go through from range(n), roll two dice pick for type and size,
-        generate 
+        """ Go through from range(n)/2, roll two dice pick for type and size,
+        generate satisfied, same for 
         """
 
 
 class IsConnectedDataset:
+    """ Generate datasets for graphs which are:
+        - disconnected
+        - connected
+
+        Graph models used for generation are:
+        - paths
+        - cycle
+        - Gnp
+        - r-regular graph
+        - Complete Graph
+        - Perfectly Balanced Tree
+
+        For disconnected graph:
+        - multiple paths
+        - multiple cycles
+        - Gnp: p < 1/sqrt(n)
+        - r-regular
+        - multiple complete graphs
+        - multiple perfectly balanced tree
+        - perhaps should add some scaled-free network
+    """
+    def __init__(self, logger: object = None):
+        self._logger = logger if logger is not None else\
+            logging.getLogger(__name__)
+
+    def _generate_connected(self, sizes: int):
+        """
+            Generate connected graphs.
+
+            Inputs is a 2d array which contains the parameter of the
+                graph in each 
+
+            Args
+            -------
+            sizes: 2D arrays
+                each
+                
+
+            TODO: take a dictionary for specifying how many graphs of different
+            type
+        """
+        # generate path
+        # generate gnp
+        # generate r-regular
+        # generate complete graphs
+        # generate perfect trees
+        # generate scaled-free network
+
 
 class IsCompleteDataset:
 
