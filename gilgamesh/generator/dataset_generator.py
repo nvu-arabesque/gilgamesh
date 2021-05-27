@@ -41,10 +41,12 @@ class IsPathDataset:
 
     @staticmethod
     def generate(
-        n_samples: int,
+        n: int,
+        max_size: int = 1000,
         train_test_ratio: float = 0.8,
         label_ratio: float = 0.5,
         graph_types: str = "mixture",
+        as_torch: bool = True,
     ):
         """Returns a dataset consists of train and set,
         determined by the input n_samples and ratio.
@@ -87,11 +89,15 @@ class IsPathDataset:
             for _type, _size_ in zip(neg_types, neg_g_samples)
             for _size in _size_
         ]
-        # collect statistics of dataset
-        return {"True": pos, "False": neg}
+        # TODO: collect statistics of dataset
+        # return in different format
+        return [
+            *[(pos_g, [1]) for pos_g in pos],
+            *[(neg_g, [0]) for neg_g in neg]
+        ]
 
 
-# class IsConnectedDataset:
+# class IsConnectedDataset:a
 #     """ Generate datasets for graphs which are:
 #         - disconnected
 #         - connected
