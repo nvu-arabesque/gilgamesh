@@ -4,32 +4,10 @@
 - https://github.com/jadore801120/attention-is-all-you-need-pytorch
 - https://arxiv.org/pdf/1706.03762.pdf
 """
-import numpy as np
-from tomlkit import boolean
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-
-class ScaledDotProductAttention(nn.Module):
-    """ Scaled Dot-Product Attention """
-
-    def __init__(self, temperature, attn_dropout=0.1):
-        super().__init__()
-        self.temperature = temperature
-        self.dropout = nn.Dropout(attn_dropout)
-
-    def forward(self, q, k, v, mask=None):
-
-        attn = torch.matmul(q / self.temperature, k.transpose(2, 3))
-
-        if mask is not None:
-            attn = attn.masked_fill(mask == 0, -1e9)
-
-        attn = self.dropout(F.softmax(attn, dim=-1))
-        output = torch.matmul(attn, v)
-
-        return output, attn
+from gilgamesh.transformer.scaled_dot_product import ScaledDotProductAttention
 
 
 class MultiHeadAttention(nn.Module):
@@ -41,6 +19,7 @@ class MultiHeadAttention(nn.Module):
         d_v: int = None,
         dropout: float = 0.1,
         bias: bool = False,
+        layer_norm_eps: float = 1e-6,
     ) -> None:
         super().__init__()
         self.n_head = n_head
@@ -65,7 +44,7 @@ class MultiHeadAttention(nn.Module):
         self.attention = ScaledDotProductAttention(temperature=self.d_k ** 0.5)
 
         self.dropout = nn.Dropout(dropout)
-        self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
+        self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
 
     def forward(self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask=None):
         """Forward step
