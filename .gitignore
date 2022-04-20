@@ -183,3 +183,5 @@ static
 
 # perpers from mac os
 .DS_Store
+
+*.gpg
