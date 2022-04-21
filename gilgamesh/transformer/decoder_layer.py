@@ -13,7 +13,16 @@ from gilgamesh.transformer.multi_head_attention import MultiHeadAttention
 class DecoderLayer(nn.Module):
     """ Compose with three layers """
 
-    def __init__(self, d_model, d_inner, n_head, d_k, d_v, dropout=0.1):
+    def __init__(
+        self,
+        d_model: int,
+        d_inner: int,
+        n_head: int,
+        d_k: int = None,
+        d_v: int = None,
+        dropout=0.1,
+        **kwargs,
+    ):
         super(DecoderLayer, self).__init__()
         self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
         self.enc_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)

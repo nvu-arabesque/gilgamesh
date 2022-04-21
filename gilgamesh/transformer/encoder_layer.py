@@ -21,6 +21,7 @@ class EncoderLayer(nn.Module):
         d_k: int = None,
         d_v: int = None,
         dropout: float = 0.1,
+        **kwargs,
     ):
         super().__init__()
         d_k_default = d_model // n_head

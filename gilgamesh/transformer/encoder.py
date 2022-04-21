@@ -22,7 +22,9 @@ class Encoder(nn.Module):
 
         super().__init__()
 
-        self.layers = [copy.deepcopy(encoder_layer) for i in range(num_layers)]
+        self.layers = nn.ModuleList(
+            [copy.deepcopy(encoder_layer) for i in range(num_layers)]
+        )
         self.num_layers = num_layers
         self.norm = norm
 

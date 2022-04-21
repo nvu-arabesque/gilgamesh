@@ -1,6 +1,23 @@
+"""
+@credit: 
+- mchen@arabesque.ai
+- https://github.com/jadore801120/attention-is-all-you-need-pytorch
+- https://arxiv.org/pdf/1706.03762.pdf
+"""
+
 from enum import Enum
+import torch
 import numpy as np
 import tensorflow as tf
+
+
+def get_pad_mask(seq, pad_idx):
+    return (seq != pad_idx).unsqueeze(-2)
+
+
+def get_subsequent_mask(size):
+    """ Returns lower triangle, the upper fille with -inf for masking attention strictly up to time step t. """
+    return torch.triu(torch.full((size, size), float("-inf")), diagonal=1)
 
 
 def positional_encoding(position, d_model):
