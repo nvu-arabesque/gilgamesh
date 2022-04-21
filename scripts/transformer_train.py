@@ -1,3 +1,8 @@
+"""
+@credit: 
+- https://pytorch.org/docs/stable/_modules/torch/nn/modules/transformer.html#Transformer
+"""
+
 import torch
 import torch.nn.functional as F
 import tqdm
