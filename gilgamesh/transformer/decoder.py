@@ -57,9 +57,9 @@ class Decoder(nn.Module):
 
         output = tgt
         for mod in self.layers:
-            output = mod.forward(
-                enc_output=output,
-                dec_input=memory,
+            output, *_ = mod.forward(
+                enc_output=memory,
+                dec_input=output,
                 slf_attn_mask=tgt_mask,
                 dec_enc_attn_mask=memory_mask,
             )

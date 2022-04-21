@@ -54,3 +54,7 @@ def point_wise_feed_forward_network(d_model, d_ff):
             tf.keras.layers.Dense(d_model),  # (batch_size, seq_len, d_model)
         ]
     )
+
+
+def tuple_of_tensors_to_tensor(tuple_of_tensors):
+    return torch.stack(list(tuple_of_tensors), dim=0)

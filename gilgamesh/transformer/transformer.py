@@ -14,7 +14,11 @@ from gilgamesh.transformer.decoder_layer import DecoderLayer
 
 from gilgamesh.transformer.encoder import Encoder
 from gilgamesh.transformer.encoder_layer import EncoderLayer
-from gilgamesh.transformer.utils import get_pad_mask, get_subsequent_mask
+from gilgamesh.transformer.utils import (
+    get_pad_mask,
+    get_subsequent_mask,
+    tuple_of_tensors_to_tensor,
+)
 
 
 class Transformer(nn.Module):
@@ -54,7 +58,8 @@ class Transformer(nn.Module):
             decoder_layer=DecoderLayer(**models_params),
             num_layers=models_params["num_decoder_layers"],
         )
-        self.readout = nn.Linear(d_model, d_model)
+        self.ffnn = nn.Linear(d_model, 1, bias=False)
+
         self._reset_parameters()
 
         self.d_model = d_model
@@ -68,11 +73,13 @@ class Transformer(nn.Module):
                 xavier_uniform_(p)
 
     def forward(self, source_seq, target_seq):
-        trg_mask = get_subsequent_mask(target_seq)
-        enc_output, _ = self.encoder.forward(src=source_seq)
-        dec_output, _ = self.decoder.forward(
-            tgt=target_seq, memory=enc_output, tgt_mask=trg_mask
+        trg_mask = get_subsequent_mask(target_seq.shape[1])
+        enc_output, _ = self.encoder(src=source_seq)
+        dec_output = self.decoder.forward(
+            tgt=target_seq,
+            memory=enc_output,
+            tgt_mask=trg_mask,
         )
-        final_output, _ = F.softmax(self.readout.forward(dec_output))
+        seq_logit = self.ffnn(dec_output)
 
-        return final_output
+        return seq_logit.view(-1, seq_logit.size(2))

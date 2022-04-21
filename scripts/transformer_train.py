@@ -3,9 +3,10 @@
 - https://pytorch.org/docs/stable/_modules/torch/nn/modules/transformer.html#Transformer
 """
 
+import time
 import torch
 import torch.nn.functional as F
-import tqdm
+from tqdm import tqdm
 import math
 
 

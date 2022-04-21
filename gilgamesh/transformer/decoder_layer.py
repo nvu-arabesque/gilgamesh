@@ -23,7 +23,7 @@ class DecoderLayer(nn.Module):
         dropout=0.1,
         **kwargs,
     ):
-        super(DecoderLayer, self).__init__()
+        super().__init__()
         self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
         self.enc_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
         self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
