@@ -34,12 +34,21 @@ class Batch:
         )
         self.src_mask = self.get_subsequent_mask(self.src.shape[1], self.batch_size)
 
+    @property
+    def shape(self):
+        return {
+            "batch_size": self.batch_size,
+            "src_shape": self.src.shape,
+            "tgt_shape": self.tgt.shape,
+        }
+
     @staticmethod
     def get_subsequent_mask(size, batch_size):
         """ Returns lower triangle, the upper fille with -inf for masking attention strictly up to time step t. """
-        return torch.stack(
-            [
-                torch.triu(torch.full((size, size), float("-inf")), diagonal=1)
-                for _ in range(batch_size)
-            ]
-        )
+        # return torch.stack(
+        #     [
+        #         torch.triu(torch.full((size, size), float("-inf")), diagonal=1)
+        #         for _ in range(batch_size)
+        #     ]
+        # )
+        return torch.triu(torch.full((size, size), float("-inf")), diagonal=1)

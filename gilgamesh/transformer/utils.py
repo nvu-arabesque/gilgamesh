@@ -72,9 +72,7 @@ def data_gen(
 ):
     "Generate random data for a src-tgt copy task."
     for i in range(n_batches):
-        data = torch.from_numpy(
-            np.random.randint(1, V, size=(batch_size, seq_length, embed_dim))
-        )
+        data = torch.rand(batch_size, seq_length, embed_dim)
         data[:, 0] = 1
         src = Variable(data, requires_grad=False)
         tgt = Variable(data, requires_grad=False)

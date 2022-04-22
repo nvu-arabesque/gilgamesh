@@ -45,6 +45,7 @@ class Transformer(nn.Module):
             "num_encoder_layers": num_encoder_layers,
             "num_decoder_layers": num_decoder_layers,
             "d_inner": d_inner,
+            "d_final": d_final,
             "dropout": dropout,
             "activation": activation,
             "layer_norm_eps": layer_norm_eps,

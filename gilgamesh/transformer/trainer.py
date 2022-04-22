@@ -16,6 +16,7 @@ from gilgamesh.transformer.transformer import Transformer
 class TransformerTrainer:
     def __init__(self):
         self.trainer = None
+        self.loss = torch.nn.MSELoss()
 
     def train_epoch(
         self,
@@ -25,7 +26,6 @@ class TransformerTrainer:
         opt,
         device,
         smoothing,
-        loss_function,
     ):
         """ Epoch operation in training phase"""
 
@@ -37,16 +37,14 @@ class TransformerTrainer:
 
             # prepare data
             src, tgt, tgt_mask, inp = batch.src, batch.tgt, batch.tgt_mask, batch.inp
-
+            src = src.to(device)
             # forward
             optimizer.zero_grad()
             pred = model.forward(source_seq=src, target_seq=inp, tgt_mask=tgt_mask)
-
             # backward and update parameters
             loss = self.cal_performance(pred, tgt, smoothing=smoothing)
             loss.backward()
-            optimizer.step_and_update_lr()
-
+            optimizer.step()
             # note keeping
             total_loss += loss.item()
         return total_loss
@@ -55,8 +53,7 @@ class TransformerTrainer:
         """ Epoch operation in evaluation phase """
 
         model.eval()
-        total_loss = 0, 0, 0
-
+        total_loss = 0
         desc = "  - (Validation) "
         with torch.no_grad():
             for batch in tqdm(validation_data, mininterval=2, desc=desc, leave=False):
@@ -82,39 +79,30 @@ class TransformerTrainer:
         self, x: torch.Tensor, y: torch.Tensor, smoothing: bool = False
     ):
         """ Apply label smoothing if needed """
+        return self.loss(x.contiguous().view(-1), y.contiguous().view(-1))
 
-        return self.cal_loss(x, y, smoothing=smoothing)
-
-    def cal_loss(self, x, y, smoothing=False):
-        """ Calculate cross entropy loss, apply label smoothing if needed. """
-
-        y = y.contiguous().view(-1)
-
-        if smoothing:
-            eps = 0.1
-            n_class = x.size(1)
-
-            one_hot = torch.zeros_like(x).scatter(1, y.view(-1, 1), 1)
-            one_hot = one_hot * (1 - eps) + (1 - one_hot) * eps / (n_class - 1)
-            log_prb = F.log_softmax(x, dim=1)
-            loss = -(one_hot * log_prb).sum(dim=1)
-            loss = loss.sum()  # average later
-        else:
-            loss = F.cross_entropy(x, y, reduction="sum")
-        return loss
-
-    def print_performances(self, header, loss, accu, start_time):
+    def print_performances(self, header, loss, start_time):
         print(
-            "  - {header:12} ppl: {ppl: 8.5f}, accuracy: {accu:3.3f} %, "
+            "  - {header:12} ppl: {ppl: 8.5f}"
             "elapse: {elapse:3.3f} min".format(
                 header=f"({header})",
                 ppl=math.exp(min(loss, 100)),
-                accu=100 * accu,
+                accu="Omitted",
                 elapse=(time.time() - start_time) / 60,
             )
         )
 
-    def train(self, model, training_data, validation_data, optimizer, device, opt):
+    def train(
+        self,
+        model,
+        training_data,
+        validation_data,
+        optimizer,
+        device,
+        epoch=100,
+        opt=None,
+        smoothing=False,
+    ):
         """ Start training """
 
         log_train_file, log_valid_file = None, None
@@ -136,23 +124,23 @@ class TransformerTrainer:
         #         log_vf.write("epoch,loss,ppl,accuracy\n")
         # valid_accus = []
         valid_losses = []
-        for epoch_i in range(opt.epoch):
+        for epoch_i in range(epoch):
             print("[ Epoch", epoch_i, "]")
 
             start = time.time()
-            train_loss, train_accu = self.train_epoch(
+            train_loss = self.train_epoch(
                 model,
                 training_data,
                 optimizer,
                 opt,
                 device,
-                smoothing=opt.label_smoothing,
+                smoothing=smoothing,
             )
-            self.print_performances("Training", train_loss, train_accu, start)
+            self.print_performances("Training", train_loss, start)
 
             start = time.time()
-            valid_loss, valid_accu = self.eval_epoch(model, validation_data, device, opt)
-            self.print_performances("Validation", valid_loss, valid_accu, start)
+            valid_loss = self.eval_epoch(model, validation_data, device, opt)
+            self.print_performances("Validation", valid_loss, start)
 
             valid_losses += [valid_loss]
 
@@ -183,7 +171,7 @@ class TransformerTrainer:
                             epoch=epoch_i,
                             loss=train_loss,
                             ppl=math.exp(min(train_loss, 100)),
-                            accu=100 * train_accu,
+                            accu="Omitted",
                         )
                     )
                     log_vf.write(
@@ -191,6 +179,6 @@ class TransformerTrainer:
                             epoch=epoch_i,
                             loss=valid_loss,
                             ppl=math.exp(min(valid_loss, 100)),
-                            accu=100 * valid_accu,
+                            accu="Omitted",
                         )
                     )
