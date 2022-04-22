@@ -31,6 +31,7 @@ class Transformer(nn.Module):
         num_encoder_layers: int = 6,
         num_decoder_layers: int = 6,
         d_inner: int = 2048,
+        d_final: int = 1,
         dropout: float = 0.1,
         activation: Union[str, Callable[[torch.Tensor], torch.Tensor]] = F.relu,
         layer_norm_eps: float = 1e-5,
@@ -58,7 +59,7 @@ class Transformer(nn.Module):
             decoder_layer=DecoderLayer(**models_params),
             num_layers=models_params["num_decoder_layers"],
         )
-        self.ffnn = nn.Linear(d_model, 1, bias=False)
+        self.ffnn = nn.Linear(d_model, d_final, bias=False)
 
         self._reset_parameters()
 
@@ -72,13 +73,18 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 xavier_uniform_(p)
 
-    def forward(self, source_seq, target_seq):
-        trg_mask = get_subsequent_mask(target_seq.shape[1])
+    def forward(
+        self,
+        source_seq: torch.Tensor,
+        target_seq: torch.Tensor,
+        tgt_mask: torch.Tensor,
+        src_mask: torch.Tensor = None,
+    ):
         enc_output, _ = self.encoder(src=source_seq)
         dec_output = self.decoder.forward(
             tgt=target_seq,
             memory=enc_output,
-            tgt_mask=trg_mask,
+            tgt_mask=tgt_mask,
         )
         seq_logit = self.ffnn(dec_output)
 

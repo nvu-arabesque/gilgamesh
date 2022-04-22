@@ -9,6 +9,9 @@ from enum import Enum
 import torch
 import numpy as np
 import tensorflow as tf
+from torch.autograd import Variable
+
+from gilgamesh.transformer.data import Batch
 
 
 def get_pad_mask(seq, pad_idx):
@@ -58,3 +61,21 @@ def point_wise_feed_forward_network(d_model, d_ff):
 
 def tuple_of_tensors_to_tensor(tuple_of_tensors):
     return torch.stack(list(tuple_of_tensors), dim=0)
+
+
+def data_gen(
+    batch_size: int = 10,
+    seq_length: int = 32,
+    embed_dim: int = 512,
+    n_batches: int = 10,
+    V: int = 100,
+):
+    "Generate random data for a src-tgt copy task."
+    for i in range(n_batches):
+        data = torch.from_numpy(
+            np.random.randint(1, V, size=(batch_size, seq_length, embed_dim))
+        )
+        data[:, 0] = 1
+        src = Variable(data, requires_grad=False)
+        tgt = Variable(data, requires_grad=False)
+        yield Batch(src, tgt)

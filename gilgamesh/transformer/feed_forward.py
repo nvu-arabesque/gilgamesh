@@ -32,7 +32,7 @@ class PositionwiseFeedForward(nn.Module):
 
     def forward(self, x: torch.Tensor):
         residual = x
-        # original paper does not use dropout1 but torch does
+        # original paper does not use on output of w_1 but torch does
         x = self.dropout2(self.w_2(self.activation(self.w_1(x))))
         x += residual
         x = self.layer_norm(x)
