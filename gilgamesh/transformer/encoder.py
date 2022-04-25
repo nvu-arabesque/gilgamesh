@@ -13,17 +13,30 @@ import torch.nn as nn
 from gilgamesh.transformer.encoder_layer import EncoderLayer
 from gilgamesh.transformer.feed_forward import PositionwiseFeedForward
 from gilgamesh.transformer.multi_head_attention import MultiHeadAttention
+from gilgamesh.transformer.positional_encoding import (
+    PositionalEncoding,
+    PositionalEncodingLayer,
+)
 
 
 class Encoder(nn.Module):
     """ A encoder model with self attention mechanism. """
 
-    def __init__(self, encoder_layer: EncoderLayer, num_layers: int, norm=None):
+    def __init__(
+        self,
+        encoder_layer: EncoderLayer,
+        num_layers: int,
+        d_embed: int,
+        norm=None,
+        n_position: int = None,
+    ):
 
         super().__init__()
-
         self.layers = nn.ModuleList(
             [copy.deepcopy(encoder_layer) for i in range(num_layers)]
+        )
+        self.position_enc = PositionalEncodingLayer(
+            d_embed=d_embed, n_position=n_position
         )
         self.num_layers = num_layers
         self.norm = norm
@@ -33,7 +46,7 @@ class Encoder(nn.Module):
         src: Tensor,
         mask: Optional[Tensor] = None,
     ) -> Tensor:
-        output = src
+        output = self.position_enc(src)
         attentions = []
         for mod in self.layers:
             output, attn = mod.forward(output, slf_attn_mask=mask)

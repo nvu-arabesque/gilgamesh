@@ -35,3 +35,21 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x):
         return x + self.pos_table[:, : x.size(1)].clone().detach()
+
+
+class PositionalEncodingLayer(nn.Module):
+    def __init__(
+        self,
+        d_embed,
+        n_position=200,
+        dropout: float = 0.1,
+    ):
+        super().__init__()
+        self.d_model = d_embed
+        self.n_position = n_position
+        self.position_enc = PositionalEncoding(d_embed, n_position=n_position)
+        self.dropout = nn.Dropout(p=dropout)
+        self.layer_norm = nn.LayerNorm(d_embed, eps=1e-6)
+
+    def forward(self, x):
+        return self.layer_norm(self.dropout(self.position_enc(x)))

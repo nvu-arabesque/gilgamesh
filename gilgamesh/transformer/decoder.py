@@ -10,8 +10,7 @@ from typing import Optional
 from torch import Tensor
 import torch.nn as nn
 from gilgamesh.transformer.decoder_layer import DecoderLayer
-from gilgamesh.transformer.feed_forward import PositionwiseFeedForward
-from gilgamesh.transformer.multi_head_attention import MultiHeadAttention
+from gilgamesh.transformer.positional_encoding import PositionalEncodingLayer
 
 
 class Decoder(nn.Module):
@@ -21,12 +20,17 @@ class Decoder(nn.Module):
         self,
         decoder_layer: DecoderLayer,
         num_layers: int,
+        d_embed: int,
+        n_position: int = 200,
         norm=None,
     ):
 
         super().__init__()
         self.layers = nn.ModuleList(
             [copy.deepcopy(decoder_layer) for i in range(num_layers)]
+        )
+        self.position_enc = PositionalEncodingLayer(
+            d_embed=d_embed, n_position=n_position
         )
         self.num_layers = num_layers
         self.norm = norm
@@ -55,7 +59,7 @@ class Decoder(nn.Module):
             the mask for the memory keys per batch (optional).
         """
 
-        output = tgt
+        output = self.position_enc(tgt)
         for mod in self.layers:
             output, *_ = mod.forward(
                 enc_output=memory,
