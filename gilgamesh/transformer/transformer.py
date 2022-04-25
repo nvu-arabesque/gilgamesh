@@ -35,6 +35,8 @@ class Transformer(nn.Module):
         dropout: float = 0.1,
         activation: Union[str, Callable[[torch.Tensor], torch.Tensor]] = F.relu,
         layer_norm_eps: float = 1e-5,
+        d_embed: int = 512,
+        **kwargs,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -54,11 +56,13 @@ class Transformer(nn.Module):
         self.encoder = Encoder(
             encoder_layer=EncoderLayer(**models_params),
             num_layers=models_params["num_encoder_layers"],
+            d_embed=d_embed,
         )
 
         self.decoder = Decoder(
-            decoder_layer=DecoderLayer(**models_params),
+            decoder_layer=DecoderLayer(**models_params, **kwargs),
             num_layers=models_params["num_decoder_layers"],
+            d_embed=d_embed,
         )
         self.ffnn = nn.Linear(d_model, d_final, bias=False)
 

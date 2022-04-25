@@ -27,8 +27,8 @@ class Encoder(nn.Module):
         encoder_layer: EncoderLayer,
         num_layers: int,
         d_embed: int,
+        n_position: int = 200,
         norm=None,
-        n_position: int = None,
     ):
 
         super().__init__()
