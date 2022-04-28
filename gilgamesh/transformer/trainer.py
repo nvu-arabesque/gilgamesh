@@ -8,15 +8,17 @@ import math
 import time
 from typing import Callable
 import torch
+from torch.utils.tensorboard import SummaryWriter
 from torch.nn import functional as F
 from tqdm import tqdm
 from gilgamesh.transformer.transformer import Transformer
 
 
 class TransformerTrainer:
-    def __init__(self):
+    def __init__(self, use_tensorboard: bool = True):
         self.trainer = None
         self.loss = torch.nn.MSELoss()
+        self.writer = SummaryWriter() if use_tensorboard else None
 
     def train_epoch(
         self,
@@ -33,6 +35,7 @@ class TransformerTrainer:
         total_loss = 0
 
         desc = "  - (Training)   "
+        before = list(model.parameters())[0].clone()
         for batch in tqdm(training_data, mininterval=2, desc=desc, leave=False):
 
             # prepare data
@@ -47,6 +50,8 @@ class TransformerTrainer:
             optimizer.step()
             # note keeping
             total_loss += loss.item()
+        after = list(model.parameters())[0].clone()
+        print("weight changed", (after - before).sum())
         return total_loss
 
     def eval_epoch(self, model, validation_data, device, opt):
@@ -136,6 +141,7 @@ class TransformerTrainer:
                 device,
                 smoothing=smoothing,
             )
+            self.writer.add_scalar("Loss/train", train_loss, epoch_i)
             self.print_performances("Training", train_loss, start)
 
             start = time.time()
@@ -182,3 +188,4 @@ class TransformerTrainer:
                             accu="Omitted",
                         )
                     )
+        self.writer.flush()

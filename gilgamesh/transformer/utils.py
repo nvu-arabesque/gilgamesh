@@ -64,7 +64,7 @@ def tuple_of_tensors_to_tensor(tuple_of_tensors):
 
 
 def data_gen(
-    batch_size: int = 10,
+    batch_size: int = 100,
     seq_length: int = 32,
     embed_dim: int = 512,
     n_batches: int = 10,
