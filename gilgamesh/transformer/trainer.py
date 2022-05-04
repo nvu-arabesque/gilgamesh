@@ -141,13 +141,14 @@ class TransformerTrainer:
                 device,
                 smoothing=smoothing,
             )
-            self.writer.add_scalar("Loss/train", train_loss, epoch_i)
-            self.print_performances("Training", train_loss, start)
 
             start = time.time()
             valid_loss = self.eval_epoch(model, validation_data, device, opt)
             self.print_performances("Validation", valid_loss, start)
+            self.print_performances("Training", train_loss, start)
 
+            self.writer.add_scalar("Loss/train", train_loss, epoch_i)
+            self.writer.add_scalar("Loss/tes", valid_loss, epoch_i)
             valid_losses += [valid_loss]
 
             checkpoint = {

@@ -185,3 +185,10 @@ static
 .DS_Store
 
 *.gpg
+
+
+.models/*
+.deployments/
+
+runs/
+logs/
